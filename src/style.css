@@ -1,0 +1,97 @@
+/* Attribute selectors deliberately follow the host's semantic DOM contract. */
+[data-doc-focus-panel] {
+  bottom: var(--doc-focus-reserved) !important;
+  transition: none !important;
+}
+[data-doc-focus-ancestor] {
+  background: transparent !important;
+  border-color: transparent !important;
+  pointer-events: none !important;
+}
+[data-doc-focus-chat] {
+  box-sizing: border-box !important;
+  position: fixed !important;
+  inset: auto 0 var(--doc-focus-bottom, 0px) 0 !important;
+  width: auto !important;
+  height: var(--doc-focus-height) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  z-index: 45 !important;
+  background: var(--dsw-alias-bg-base, #181818) !important;
+  pointer-events: auto !important;
+  --dsh-sidebar-height: 0px;
+  --dsh-composer-text-max-height: min(100px, 20vh);
+  --dsh-chat-content-width: min(100vw - 48px, 1000px);
+  --dsh-composer-card-max-width: min(100vw - 24px, 1032px);
+}
+[data-doc-focus-chat] > [data-conversation-scroll] {
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+[data-doc-focus-chat] [data-composer-seat] {
+  --dsh-composer-text-max-height: min(100px, 20vh);
+}
+[data-doc-focus-toolbar] {
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--doc-focus-height) + var(--doc-focus-bottom, 0px));
+  height: 32px;
+  z-index: 46;
+  background: var(--dsw-alias-bg-base, #181818);
+  color: var(--dsw-alias-label-secondary, #aaa);
+  border-top: 1px solid var(--dsw-alias-border-l2, #555);
+  border-bottom: 1px solid var(--dsw-alias-border-l3, #444);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  font: 12px/1.5 var(--dsw-font-family, sans-serif);
+  -webkit-app-region: no-drag;
+}
+[data-doc-focus-resize] {
+  align-self: stretch;
+  flex: 1;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: ns-resize;
+  touch-action: none;
+  user-select: none;
+  outline-offset: -2px;
+}
+[data-doc-focus-resize]::before {
+  content: '';
+  width: 28px;
+  height: 3px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--dsw-alias-border-l1, #888);
+}
+[data-doc-focus-toolbar] button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 3px 8px;
+  font: inherit;
+}
+[data-doc-focus-toolbar] button:hover {
+  background: var(--dsw-alias-interactive-bg-hover, #7773);
+}
+[data-doc-focus-toolbar] button:focus-visible,
+[data-doc-focus-resize]:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary, #568bff);
+}
+body[data-doc-focus-dragging], body[data-doc-focus-dragging] * { cursor: ns-resize !important; }
+/* iframe surfaces would otherwise swallow the resize pointer. */
+body[data-doc-focus-dragging] iframe { pointer-events: none !important; }
+@media (max-width: 600px) {
+  [data-doc-focus-toolbar] { gap: 4px; padding-inline: 8px; }
+  [data-doc-focus-hint] { display: none; }
+}

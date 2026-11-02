@@ -1,0 +1,17 @@
+{
+  "name": "dsh-doc-focus",
+  "version": "0.1.0",
+  "description": "全屏查看 DSH 侧栏文档或浏览器，同时在底部继续主会话。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": { ".": "./lib/index.js", "./client": "./lib/client.js", "./package.json": "./package.json" },
+  "files": ["lib", "src", "cordis.patch.yml", "README.md", "LICENSE"],
+  "license": "MIT",
+  "scripts": { "build": "node scripts/build.mjs", "test": "node --test tests/*.test.mjs", "check": "node --check src/client.js && node --check src/index.js" },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-sidebar-right", "@deepseek-ai/dsh-client-ui-conversation"] }
+  },
+  "devDependencies": { "playwright-core": "^1.56.0" }
+}
