@@ -94,11 +94,11 @@ test('resize keyboard/drag, modal Escape, and cleanup restore layout without los
  } finally { await page.close(); }
 });
 
-test('matches session identity; automatic narrow fullscreen remains unchanged',async()=>{
+test('matches session identity and supports native automatic fullscreen on narrow windows',async()=>{
  const page=await pageFor(500,800);
  try {
-  await page.evaluate(()=>new Promise(requestAnimationFrame));
-  assert.equal(await page.locator('[data-doc-focus-toolbar]').count(),0);
+  await page.waitForSelector('[data-doc-focus-toolbar]');
+  assert.equal((await page.locator('[data-doc-focus-chat]').boundingBox()).width,500);
   await page.setViewportSize({width:1280,height:900});
   await page.waitForSelector('[data-doc-focus-toolbar]');
   await page.evaluate(()=>{document.querySelector('[data-sidebar-right-panel]').dataset.sidebarRightSession='other';});
