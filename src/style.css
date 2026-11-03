@@ -1,6 +1,7 @@
 /* Attribute selectors deliberately follow the host's semantic DOM contract. */
+/* The reader keeps the whole viewport; the chat floats above it like Codex. */
 [data-doc-focus-panel] {
-  bottom: var(--doc-focus-reserved) !important;
+  bottom: 0 !important;
   transition: none !important;
 }
 [data-doc-focus-ancestor] {
@@ -12,19 +13,37 @@
   box-sizing: border-box !important;
   position: fixed !important;
   inset: auto 0 var(--doc-focus-bottom, 0px) 0 !important;
-  width: auto !important;
+  width: min(100vw - 48px, 1000px) !important;
+  margin-inline: auto !important;
   height: var(--doc-focus-height) !important;
   min-height: 0 !important;
   max-height: none !important;
-  z-index: 45 !important;
+  z-index: 900 !important;
   background: var(--dsw-alias-bg-base, #181818) !important;
+  border: 1px solid var(--dsw-alias-border-l2, #3a3a3a);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, .45);
+  overflow: hidden;
   pointer-events: auto !important;
   --dsh-sidebar-height: 0px;
   --dsh-composer-text-max-height: min(100px, 20vh);
-  --dsh-chat-content-width: min(100vw - 48px, 1000px);
-  --dsh-composer-card-max-width: min(100vw - 24px, 1032px);
+  --dsh-chat-content-width: 100% !important;
+  --dsh-composer-card-max-width: 100% !important;
+  --dsh-composer-side-clearance: 0px !important;
 }
-[data-doc-focus-chat] > [data-conversation-scroll] {
+/* The host re-declares the width tokens on inner nodes; keep the card in charge. */
+[data-doc-focus-chat] * {
+  --dsh-chat-content-width: 100% !important;
+  --dsh-composer-card-max-width: 100% !important;
+  --dsh-composer-side-clearance: 0px !important;
+}
+[data-doc-focus-chat][data-doc-focus-corner] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none !important;
+}
+[data-doc-focus-chat] [data-conversation-scroll] {
   height: 100% !important;
   min-height: 0 !important;
   overflow-y: auto !important;
@@ -32,6 +51,8 @@
 }
 [data-doc-focus-chat] [data-composer-seat] {
   --dsh-composer-text-max-height: min(100px, 20vh);
+  background: transparent !important;
+  z-index: auto !important;
 }
 [data-doc-focus-toolbar] {
   box-sizing: border-box;
@@ -39,18 +60,25 @@
   left: 0;
   right: 0;
   bottom: calc(var(--doc-focus-height) + var(--doc-focus-bottom, 0px));
-  height: 32px;
-  z-index: 46;
+  width: min(100vw - 48px, 1000px);
+  margin-inline: auto;
+  height: 30px;
+  z-index: 901;
   background: var(--dsw-alias-bg-base, #181818);
   color: var(--dsw-alias-label-secondary, #aaa);
-  border-top: 1px solid var(--dsw-alias-border-l2, #555);
-  border-bottom: 1px solid var(--dsw-alias-border-l3, #444);
+  border: 1px solid var(--dsw-alias-border-l2, #3a3a3a);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, .3);
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 12px;
+  padding: 0 10px;
   font: 12px/1.5 var(--dsw-font-family, sans-serif);
   -webkit-app-region: no-drag;
+}
+[data-doc-focus-toolbar][data-doc-focus-hidden] {
+  display: none;
 }
 [data-doc-focus-resize] {
   align-self: stretch;
@@ -88,10 +116,33 @@
 [data-doc-focus-resize]:focus-visible {
   outline: 2px solid var(--dsw-alias-state-business-primary, #568bff);
 }
+[data-doc-focus-bubble] {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + var(--doc-focus-bottom, 0px));
+  z-index: 902;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+  border: 1px solid var(--dsw-alias-border-l2, #3a3a3a);
+  background: var(--dsw-alias-bg-base, #181818);
+  color: var(--dsw-alias-label-primary, #eee);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .42);
+  cursor: pointer;
+  font: 12px/1 var(--dsw-font-family, sans-serif);
+  -webkit-app-region: no-drag;
+}
+[data-doc-focus-bubble]:hover {
+  background: var(--dsw-alias-interactive-bg-hover, #7773);
+}
+[data-doc-focus-bubble]:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary, #568bff);
+}
 body[data-doc-focus-dragging], body[data-doc-focus-dragging] * { cursor: ns-resize !important; }
 /* iframe surfaces would otherwise swallow the resize pointer. */
 body[data-doc-focus-dragging] iframe { pointer-events: none !important; }
 @media (max-width: 600px) {
+  [data-doc-focus-chat], [data-doc-focus-toolbar] { width: min(100vw - 24px, 1000px); }
   [data-doc-focus-toolbar] { gap: 4px; padding-inline: 8px; }
   [data-doc-focus-hint] { display: none; }
 }

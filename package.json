@@ -1,7 +1,7 @@
 {
   "name": "dsh-doc-focus",
-  "version": "0.1.1",
-  "description": "在 DSH 原生右侧栏全屏查看文档或浏览器，同时在底部保留主会话输入框与回复区。",
+  "version": "0.2.0",
+  "description": "在 DSH 原生右侧栏全屏查看文档或浏览器的同时，以悬浮卡片保留主会话，收起时缩到右下角挂件。",
   "keywords": [
     "dsh",
     "dsh-plugin",

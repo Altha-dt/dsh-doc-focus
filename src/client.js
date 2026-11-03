@@ -1,5 +1,6 @@
 const KEY = 'dsh-doc-focus:height';
-const BAR = 32;
+const MODE_KEY = 'dsh-doc-focus:mode';
+const BAR = 30;
 
 export function clampHeight(value, viewportHeight) {
   const max = Math.max(100, Math.floor(viewportHeight * 0.65));
@@ -17,6 +18,8 @@ export function mount(doc, win, css) {
   doc.head.append(style);
   let height = 260;
   try { const saved = win.localStorage.getItem(KEY); if (saved !== null) height = Number(saved); } catch {}
+  let mode = 'card';
+  try { const saved = win.localStorage.getItem(MODE_KEY); if (saved === 'corner') mode = 'corner'; } catch {}
   let active = null;
   let scheduled = 0;
   let destroyed = false;
@@ -32,37 +35,57 @@ export function mount(doc, win, css) {
   resize.tabIndex = 0;
   resize.setAttribute('role', 'separator');
   resize.setAttribute('aria-orientation', 'horizontal');
-  resize.setAttribute('aria-label', '调整底部主会话高度，方向键调整');
+  resize.setAttribute('aria-label', '调整悬浮主会话高度，方向键调整');
   const label = doc.createElement('span');
   label.textContent = '主会话';
   const hint = doc.createElement('span');
   hint.dataset.docFocusHint = '';
   hint.textContent = '拖动调整 · 可查看回复并继续对话';
   resize.append(label, hint);
-  const expand = doc.createElement('button');
-  expand.type = 'button';
-  expand.textContent = '展开对话';
+  const collapse = doc.createElement('button');
+  collapse.type = 'button';
   const exit = doc.createElement('button');
   exit.type = 'button';
   exit.textContent = '退出全屏';
-  toolbar.append(resize, expand, exit);
+  toolbar.append(resize, collapse, exit);
+  const bubble = doc.createElement('button');
+  bubble.type = 'button';
+  bubble.dataset.docFocusBubble = '';
+  bubble.setAttribute('aria-label', '展开主会话');
+  bubble.textContent = '对话';
 
-  const compactHeight = () => clampHeight(Math.min(220, viewport() * .4), viewport());
-  const expandedHeight = () => clampHeight(viewport() * .65, viewport());
-  const isExpanded = () => clampHeight(height, viewport()) > (compactHeight() + expandedHeight()) / 2;
   function measure() {
     const h = clampHeight(height, viewport());
     const bottom = Math.max(0, win.innerHeight - (win.visualViewport?.height ?? win.innerHeight) - (win.visualViewport?.offsetTop ?? 0));
     doc.documentElement.style.setProperty('--doc-focus-height', `${h}px`);
-    doc.documentElement.style.setProperty('--doc-focus-reserved', `${h + BAR + bottom}px`);
     doc.documentElement.style.setProperty('--doc-focus-bottom', `${bottom}px`);
     resize.setAttribute('aria-valuemin', String(Math.min(180, Math.max(100, Math.floor(viewport() * .65)))));
     resize.setAttribute('aria-valuemax', String(Math.max(100, Math.floor(viewport() * .65))));
     resize.setAttribute('aria-valuenow', String(h));
-    expand.textContent = isExpanded() ? '收起对话' : '展开对话';
   }
   function saveHeight() {
     try { win.localStorage.setItem(KEY, String(height)); } catch {}
+  }
+  function saveMode() {
+    try { win.localStorage.setItem(MODE_KEY, mode); } catch {}
+  }
+  function applyMode() {
+    collapse.textContent = mode === 'corner' ? '展开' : '收起';
+    if (!active) return;
+    if (mode === 'corner') {
+      active.chat.setAttribute('data-doc-focus-corner', '');
+      toolbar.setAttribute('data-doc-focus-hidden', '');
+      doc.body.append(bubble);
+    } else {
+      active.chat.removeAttribute('data-doc-focus-corner');
+      toolbar.removeAttribute('data-doc-focus-hidden');
+      bubble.remove();
+    }
+  }
+  function toggleMode() {
+    mode = mode === 'corner' ? 'card' : 'corner';
+    saveMode();
+    applyMode();
   }
   function endDrag() {
     if (!drag) return;
@@ -75,13 +98,19 @@ export function mount(doc, win, css) {
     endDrag();
     active.panel.removeAttribute('data-doc-focus-panel');
     active.chat.removeAttribute('data-doc-focus-chat');
+    active.chat.removeAttribute('data-doc-focus-corner');
     for (const ancestor of active.ancestors) ancestor.removeAttribute('data-doc-focus-ancestor');
     toolbar.remove();
+    toolbar.removeAttribute('data-doc-focus-hidden');
+    bubble.remove();
     active = null;
-    for (const prop of ['--doc-focus-height', '--doc-focus-reserved', '--doc-focus-bottom']) doc.documentElement.style.removeProperty(prop);
+    for (const prop of ['--doc-focus-height', '--doc-focus-bottom']) doc.documentElement.style.removeProperty(prop);
   }
   function visible(el) {
-    return el.getClientRects().length > 0 && (!el.checkVisibility || el.checkVisibility({ checkVisibilityCSS: true }));
+    if (el.getClientRects().length === 0) return false;
+    // Our own collapsed state hides the card on purpose; it must stay "visible" to the tracker.
+    if (el.hasAttribute('data-doc-focus-corner')) return true;
+    return !el.checkVisibility || el.checkVisibility({ checkVisibilityCSS: true });
   }
   function sync() {
     scheduled = 0;
@@ -108,6 +137,7 @@ export function mount(doc, win, css) {
     for (const ancestor of ancestors) ancestor.dataset.docFocusAncestor = '';
     measure();
     doc.body.append(toolbar);
+    applyMode();
     // Observe geometry only; never scroll the reader or focus away from an iframe/editor.
   }
   function schedule() {
@@ -151,17 +181,12 @@ export function mount(doc, win, css) {
     measure();
     saveHeight();
   }
-  function toggleExpand() {
-    height = isExpanded() ? compactHeight() : expandedHeight();
-    measure();
-    saveHeight();
-  }
   const observer = new win.MutationObserver(records => {
     if (records.every(record => {
       if (record.type === 'attributes') return record.target === doc.documentElement;
       // Ignore streaming, browser frames and our own toolbar changes when the two owners survive.
       return active?.panel.isConnected && active.chat.isConnected &&
-        (active.chat.contains(record.target) || active.panel.contains(record.target) || toolbar.contains(record.target));
+        (active.chat.contains(record.target) || active.panel.contains(record.target) || toolbar.contains(record.target) || bubble.contains(record.target));
     })) return;
     schedule();
   });
@@ -177,7 +202,8 @@ export function mount(doc, win, css) {
   resize.addEventListener('pointercancel', endDrag);
   resize.addEventListener('lostpointercapture', endDrag);
   resize.addEventListener('keydown', resizeKey);
-  expand.addEventListener('click', toggleExpand);
+  collapse.addEventListener('click', toggleMode);
+  bubble.addEventListener('click', toggleMode);
   exit.addEventListener('click', leave);
   schedule();
   return () => {

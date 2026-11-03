@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "DSH Doc Focus",
-    "description": "Fullscreen a document or browser in the native right sidebar while the main chat stays docked at the bottom."
+    "description": "Fullscreen a document or browser in the native right sidebar while the main chat floats above it and collapses into a corner bubble."
   }
 }
