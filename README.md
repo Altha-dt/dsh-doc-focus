@@ -17,11 +17,15 @@
 
 ## 安装与构建
 
-在此目录执行 `pnpm install`、`pnpm run build`、`pnpm test`。
+从 GitHub 安装（宿主插件管理器支持 git 源）：
 
-当前 Desktop 安装：
+    /Applications/DeepSeek\ Harness.app/Contents/Resources/runtime/cli/bin/dsh plugin --profile desktop add git+https://github.com/Altha-dt/dsh-doc-focus
+
+从源码安装（本地开发）：
 
     /Applications/DeepSeek\ Harness.app/Contents/Resources/runtime/cli/bin/dsh plugin --profile desktop add link:/Users/dl/Downloads/wks/dsh-doc-focus
+
+在此目录执行 `pnpm install`、`pnpm run build`、`pnpm test`。
 
 需要 DSH 原生右栏与会话 DOM 语义标记；开发验证基于 DSH 0.2.1-rc.5。安装后宿主应自动重新组合 profile；如果已打开的页面未同步，请刷新当前页面。包不包含新的网络服务或主机文件路由。
 
