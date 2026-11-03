@@ -1,3 +1,4 @@
+# dsh-doc-focus bundle: mount the Node half (empty apply — behaviour is all in the client bundle).
 - insert:
-    - id: doc-focus
-      name: dsh-doc-focus
+    - id: dsh-doc-focus
+      name: 'dsh-doc-focus'

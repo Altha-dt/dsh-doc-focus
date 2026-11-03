@@ -13,6 +13,8 @@
 
 输入草稿、附件、模型选择、发送与审批都继续使用 DSH 原生组件。插件不自动发送任何消息。全屏与调整大小不会因本插件重新加载浏览器或清空其表单；切换页签时是否保留页面，由对应宿主查看器的生命周期设置决定。
 
+安装后，插件会以 `icon.svg` 与 `locale/en.json`、`locale/zh.json` 的名称与简介出现在宿主的插件清单中；仓库标签为 `dsh`、`dsh-plugin`、`deepseek-harness`、`deepseek`、`dsh-plugins`、`sidebar`、`dsh-better-sidebar`、`fullscreen`。
+
 底部会话区默认约 260px，可调整到视口高度的 65%。高度偏好保存在当前浏览器。窄屏自动全屏也会启用底部会话区。首次进入时高度不足 400px 会保持原生布局；已进入后若软键盘压缩可视区，会缩小布局并保留输入区。
 
 ## 安装与构建
@@ -28,6 +30,18 @@
 在此目录执行 `pnpm install`、`pnpm run build`、`pnpm test`。
 
 需要 DSH 原生右栏与会话 DOM 语义标记；开发验证基于 DSH 0.2.1-rc.5。安装后宿主应自动重新组合 profile；如果已打开的页面未同步，请刷新当前页面。包不包含新的网络服务或主机文件路由。
+
+## 版本与兼容性
+
+| 项目 | 值 |
+| --- | --- |
+| 包版本 | 0.1.1 |
+| 最低 DSH 版本 | 0.2.1-rc.1（`engines.dsh`） |
+| 验证版本 | DSH 0.2.1-rc.5（Desktop，commit d4db512） |
+| Node | >= 20 |
+| 许可 | MIT |
+
+宿主在安装时按 `engines.dsh` 判断兼容性；版本不满足时插件管理器会拒绝安装，可用 `dsh plugin allow-version` 为指定版本与运行时显式放行。仓库另有 `dsh.compatibility.dshReleases` 逐版本标注兼容性，供社区目录与人工查阅。
 
 ## 兼容与限制
 
